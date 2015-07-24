@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<link rel=styleSheet href="./CSS/tablas.css" type="text/css" media=all>
+<title>Buscar Empleados por departamentos</title>
+<script>
+var xmlHttp = null;
+
+function iniciaObjetoRequest ()
+{
+	
+return new XMLHttpRequest();
+}
+
+function rellenaCaja()
+{
+	xmlHttp = iniciaObjetoRequest();
+	xmlHttp.onreadystatechange = procesarEventos; // llama a procesarEventos cada vez que cambia el estado.
+	xmlHttp.open('GET', 'CargaMenuSelect?num=30', true); //indicamos como vamos a enviar los datos, en este caso con el metodo GET al archivo meses.php?num= el valor que le indiquemos en el textbox
+	xmlHttp.send(null);
+	
+}
+
+
+
+
+function procesarEventos()
+{
+   //Obtenemos el control del TAG que contendrá la respuesta
+  if(xmlHttp.readyState==4) //ya hemos recibido respuesta del servidor
+  {
+      if(xmlHttp.status==200)// y el código de la cabecera http es bueno
+          {
+			//alert("He recibido " + xmlHttp.responseText); //.responseText es el body de la respuesta expresado en texto plano
+			//document.getElementById("cajatexto").value = xmlHttp.responseText;
+			
+			// en .response.XML ya directamente lo ha convertido en XML
+          	var lista_dptos = xmlHttp.responseXML.getElementsByTagName("departamento");
+          	var nelementos = lista_dptos.length;
+          	var opcion; //sera de tipo Option almacenaremos cada elemento del select antes de añadirlo
+          	var desplegable = document.getElementById("departamentos");
+          	
+          	var id = null;
+          	var nombre = null;
+      
+			for (var i= 0; i < nelementos; i++) {
+				
+				
+				/*var id = lista_dptos[i].children[0].textContent;
+				var nombre = lista_dptos[i].children[1].textContent;*/ //FORMA MÁS ELEGANTE Y LÓGICA, PERO NO COMPATIBLE CON IE :S
+				
+				var elementoId= lista_dptos[i].getElementsByTagName("id")[0];
+				var elementoNombre = lista_dptos[i].getElementsByTagName("nombre")[0];
+				
+				
+				id = elementoId.childNodes[0].data; //también podría usar firstChild
+				nombre = elementoNombre.childNodes[0].data;//en vez de childNodes[0]
+				
+				
+				opcion = new Option(nombre, id);//Creo la opción. Cada cajita del select (hijo de select)
+				desplegable.options[desplegable.options.length] = opcion;//la seteo. POdría haber usado como índice [i]
+				      //vamos añadiendo por el final .legth
+				
+			}
+          }
+      else
+      {
+          alert("Ha ocurrido un error"+ xmlHttp.status +":"+ xmlHttp.statusText);
+      }
+  }
+
+}
+
+
+function procesarTrabajadores()
+{
+	
+	
+	
+	
+   //Obtenemos el control del TAG que contendrá la respuesta
+  if(xmlHttp.readyState==4) //ya hemos recibido respuesta del servidor
+  {
+      if(xmlHttp.status==200)// y el código de la cabecera http es bueno
+          {
+    	  
+    	  
+			//alert("He recibido " + xmlHttp.responseText);
+			
+			var parser = new DOMParser();
+			var xmlDoc = parser.parseFromString(xmlHttp.responseText, "application/xml");
+			
+        	var lista_empleados = xmlDoc.getElementsByTagName("empleado");
+          	var nelementos = lista_empleados.length;
+          	var opcion;
+          	var desplegable2 = document.getElementById("empleados");
+          	
+            var id = null;
+          	var nombre = null;
+      
+          	var tam = desplegable2.length;
+          	
+    		
+    		// recorremos el desplegable de los empleados para eliminar los elementos
+    		// del select.
+          	for (var j=0; j < tam; j++)
+    	  	{
+    	  		desplegable2.remove(0); // eliminamos la posicion 0 cada vez que recorremos porque
+    	  						// los select cuando se elimina un elemento se colocan otra vez a
+    	  						// 0
+    	  	}
+    		
+    		
+    		// rellenamos la lista con los nuevos elementos
+			for (var i= 0; i < nelementos; i++) {
+				
+				
+				/*var id = lista_dptos[i].children[0].textContent;
+				var nombre = lista_dptos[i].children[1].textContent;*/ //FORMA MÁS ELEGANTE Y LÓGICA, PERO NO COMPATIBLE CON IE :S
+				
+				 nombre = lista_empleados[i].childNodes[0].data;//en vez de childNodes[0]
+				
+				
+				opcion = new Option(nombre, nombre);//Creo la opción
+				desplegable2.options[i] = opcion;//la seteo. POdría haber usado como índice [i]
+				 
+				
+			}
+          }
+      else
+      {
+          alert("Ha ocurrido un error"+ xmlHttp.status +":"+ xmlHttp.statusText);
+      }
+  }
+
+}
+
+
+
+
+function listarTrabajadores()
+{
+	var desplegable = document.getElementById("departamentos");
+	//alert ('Ha seleccionado el valor ' + desplegable[desplegable.selectedIndex].value);
+	//alert ('Del departamento nombre' + desplegable[desplegable.selectedIndex].text);
+	var dpto = desplegable[desplegable.selectedIndex].value;
+	xmlHttp = null;
+	xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = procesarTrabajadores;
+	xmlHttp.open('GET', 'CargarTrabajadores?dpto='+dpto, true); //indicamos como vamos a enviar los datos, en este caso con el metodo GET al archivo meses.php?num= el valor que le indiquemos en el textbox
+	xmlHttp.send(null);
+	
+	
+}
+
+
+function listarTrabajadoresTabla()
+{
+	var desplegable = document.getElementById("departamentos");
+	//alert ('Ha seleccionado el valor ' + desplegable[desplegable.selectedIndex].value);
+	alert ('Del departamento nombre' + desplegable[desplegable.selectedIndex].text);
+	var dpto = desplegable[desplegable.selectedIndex].value;
+	xmlHttp = null;
+	xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = procesarTrabajadoresTabla;
+	xmlHttp.open('GET', 'CargarTrabajadoresTabla?dpto='+dpto, true); //indicamos como vamos a enviar los datos, en este caso con el metodo GET al archivo meses.php?num= el valor que le indiquemos en el textbox
+	xmlHttp.send(null);
+}
+
+function procesarTrabajadoresTabla()
+{
+   //Obtenemos el control del TAG que contendrá la respuesta
+  if(xmlHttp.readyState==4) //ya hemos recibido respuesta del servidor
+  {
+      if(xmlHttp.status==200)// y el código de la cabecera http es bueno
+          {
+    	  
+			alert("He recibido " + xmlHttp.responseText);
+			
+			var parser = new DOMParser();
+			var xmlDoc = parser.parseFromString(xmlHttp.responseText, "application/xml");
+			
+        	var lista_empleados = xmlDoc.getElementsByTagName("empleado");
+          	var nelementos = lista_empleados.length;
+          	var tabla;
+          	var mitablaemp = document.getElementById("empleados");
+          	
+          	
+          	if (mitablaemp.length > 1) // si tiene algo mas que la cabecera
+       	    {
+       		tam = mitablaemp.length;
+       		// vacío los elementos  
+       		for (var x = 0; x < tam; x++)
+     			 {
+     			  mitablaemp.deleteRow(1); // borro la linea 1 tantas veces como tamaño tenga
+     			 }
+       	    }
+          	
+            var idEmp = null;
+          	var nombreEmp = null;
+          	//var salario = null;
+      
+          	var tam = mitablaemp.length; //para saber el tamaño que tendra la tabla
+          	
+    		
+    		
+    		// rellenamos la tabla con los nuevos elementos
+			for (var i= 0; i < nelementos; i++) {
+				
+				var elementoIdEmp= lista_empleados[i].getElementsByTagName("idemp")[0];
+				var elementoNombre = lista_empleados[i].getElementsByTagName("nombreemp")[0];
+				//var elementoSalario = lista_empleados[i].getElementsByTagName("salario")[0];
+							
+				var idEmp = elementoIdEmp.childNodes[0].data;
+				var nombreEmp = elementoNombre.childNodes[0].data;
+				//var salario = elementoIdEmp.childNodes[0].data;
+				 
+				var fila = mitablaemp.insertRow(1); //creo el tr (fila)
+				
+					    
+					// Crea un elemento <td> y un nodo de texto, haz que el nodo de
+					// texto sea el contenido de <td>, ubica el elemento <td> al final
+					// de la hilera de la tabla
+					var celdaid = fila.insertCell(0);
+					celdaid.innerText = idEmp;
+					var celdanom = fila.insertCell(1);
+					celdanom.innerText = nombreEmp;
+					//var celdasalario = fila.insertCell(2);
+					//celdasalario.innerText = salario;
+				//fila	
+			}
+          }
+      else
+      {
+          alert("Ha ocurrido un error"+ xmlHttp.status +":"+ xmlHttp.statusText);
+      }
+  }
+
+}
+
+
+
+</script>
+</head>
+
+
+<body  onload="rellenaCaja();">
+
+
+<!-- PARA HACERLO CON DOS SELECT 
+<table>
+	<tr><td><select id="departamentos" onchange="listarTrabajadores();">
+   			
+</select>
+	</td>
+	<td><select id="empleados" ></select>
+	</td></tr>
+	<tr><td><input type="submit" value="Buscar Departamentos"  ></td></tr>
+</table>
+ -->
+ 
+ <!-- PARA HACERLO CON UN SELECT Y UNA TABLA -->
+ <h2>Elegir el departamento para mostrar todos sus empleados en la tabla</h2>
+<select id="departamentos" onchange="listarTrabajadoresTabla();"></select>
+ 			
+
+<table id="empleados" border = "1">
+	<tr>
+		<th>Id Empleado</th>
+		<th>Nombre</th>
+	</tr>
+
+	
+
+
+</table>
+ 
+
+</body>
+</html>

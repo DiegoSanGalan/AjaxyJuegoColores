@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Inicio</title>
+<script>
+var xmlHttp = new XMLHttpRequest();
+
+function rellenaCaja()
+{
+	//objeto que tienen todos lo navegadores que sirve para comunicarse con el servidor
+	//.onreadystatechange: para saber el estado de la variable se modifique
+	//.open: nombre del servicio y los parametros a pelo concatenados. true = asincrono.
+	//.send: enviar, invocar. Ejecuta la instruccion anterior. (null por defecto)
+	xmlHttp.onreadystatechange = procesarEventos; //cuando vuelvas del servidor llamar a la funcion procesarEventos
+	xmlHttp.open('GET', 'CargarMenu?num=30', true); //indicamos como vamos a enviar los datos, en este caso con el metodo GET al archivo meses.php?num= el valor que le indiquemos en el textbox
+	xmlHttp.send(null); // null porque la información que nos interesa viaja en la cabecera y aqui pondríamos lo que
+						// viaja en el <body>
+	
+}
+
+function procesarEventos()
+{
+   
+  if(xmlHttp.readyState==4) //ya hemos recibido respuesta del servidor. 4 significa que ha terminado
+  {
+      if(xmlHttp.status==200)// y el código de la cabecera http es bueno. 200 todo ok
+          {
+			alert("He recibido " + xmlHttp.responseText); // mostramos una ventana emergente con la información
+			document.getElementById("cajatexto").value = xmlHttp.responseText;
+          }
+      else
+      {
+          alert("Ha ocurrido un error"+ xmlHttp.status +":"+ xmlHttp.statusText);
+      }
+  }
+
+}
+
+</script>
+
+</head>
+
+
+<body>
+
+<table>
+	<tr><td><input type="text" id="cajatexto" value="hola"></td></tr>
+	<tr><td><input type="submit" value="Rellena" onclick="rellenaCaja();"></td></tr>
+</table>
+ 
+
+</body>
+</html>
