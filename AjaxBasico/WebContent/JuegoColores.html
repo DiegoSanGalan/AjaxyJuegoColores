@@ -10,6 +10,61 @@
 	var segundaVez = 0; // variable para controlar la segunda casilla que hace click
 	var primeraCelda = null; //variable para almacenar la primera celda seleccionada
 
+
+
+
+//PARA SONIDOS AL PASAR POR LOS ELEMENTOS Y AL PULSARLOS UNO DIFERENTE
+
+var html5_audiotypes={ //define list of audio file extensions and their associated audio types. Add to it if your specified audio file isn't on this list:
+	"mp3": "audio/mpeg",
+	"mp4": "audio/mp4",
+	"ogg": "audio/ogg",
+	"wav": "audio/wav"
+}
+
+function createsoundbite(sound){
+	var html5audio=document.createElement('audio')
+	if (html5audio.canPlayType){ //check support for HTML5 audio
+		for (var i=0; i<arguments.length; i++){
+			var sourceel=document.createElement('source')
+			sourceel.setAttribute('src', arguments[i])
+			if (arguments[i].match(/\.(\w+)$/i))
+				sourceel.setAttribute('type', html5_audiotypes[RegExp.$1])
+			html5audio.appendChild(sourceel)
+		}
+		html5audio.load()
+		html5audio.playclip=function(){
+			html5audio.pause()
+			html5audio.currentTime=0
+			html5audio.play()
+		}
+		return html5audio
+	}
+	else{
+		return {playclip:function(){throw new Error("Your browser doesn't support HTML5 audio unfortunately")}}
+	}
+}
+
+//Initialize two sound clips with 1 fallback file each:
+
+var mouseoversound=createsoundbite("whistle.ogg", "whistle.mp3")
+var clicksound=createsoundbite("click.ogg", "click.mp3")
+var click2=createsoundbite("clickmenu.ogg","clickmenu.mp3")
+var over1=createsoundbite("overwaterdrop.ogg","overwaterdrop.mp3")
+var error=createsoundbite("error.ogg","error.mp3")
+var win=createsoundbite("acertar.ogg","acertar.mp3")
+var mezclar=createsoundbite("mezclar.ogg","mezclar.mp3")
+
+
+// HASTA AQUI EL CODIGO PARA QUE SUENE EL PROGRAMA
+
+
+
+
+
+
+
+
 	function iniciaObjetoRequest() {
 
 		return new XMLHttpRequest();
@@ -18,7 +73,7 @@
 	function rellenaCajaColores() {
 		xmlHttp = iniciaObjetoRequest();
 		xmlHttp.onreadystatechange = procesarEventosColores; // llama a procesarEventos cada vez que cambia el estado.
-		xmlHttp.open('GET', 'GenerarColores', true); //indicamos como vamos a enviar los datos, en este caso con el metodo GET al archivo meses.php?num= el valor que le indiquemos en el textbox
+		xmlHttp.open('GET', 'GenerarColores', true); //indicamos como vamos a enviar los datos, en este caso con el metodo GET a la clase Servlet GenerarColores
 		xmlHttp.send(null);
 
 	}
@@ -38,8 +93,7 @@
 				var nelementos = lista_celdas.length;
 				var opcion; //sera de tipo Option almacenaremos cada elemento del select antes de añadirlo
 
-				var id = null;
-				var nombre = null;
+				
 
 				for ( var i = 0; i < nelementos; i++) {
 
@@ -52,13 +106,15 @@
 					var midiv = document.getElementById(id);
 
 					color = elementoCelda.childNodes[0].data; //también podría usar firstChild
-					midiv.style.backgroundColor = color;
-					midiv.setAttribute("title", color);
-					//var atributorecogido = midiv.getAttribute("value");
+					midiv.style.backgroundColor = color; //cambiamos el color de fondo del div actual
+					midiv.setAttribute("title", color); // cambiamos el atributo title del div actual con el nombre del color
+										// para que al situarse encima con el ratón veamos el nombre del color
+										// esto es util para ciegos los programas de voz lo leerian.
+					
 
 					//color = elementoCelda.childNodes[0].data; //también podría usar firstChild
 
-					//num2.style.backgroundColor = color;
+					
 				}
 			} else {
 				alert("Ha ocurrido un error" + xmlHttp.status + ":"
@@ -69,6 +125,8 @@
 	}
 
 	function seleccionar(elegido) {
+	
+	click2.playclip();
 
 		if (((contadorParejas < 10) && (segundaVez == 0)) && (elegido.style.backgroundColor != "white"))
 		{
@@ -78,37 +136,59 @@
 			primeraCelda = elegido;
 			segundaVez = 1;
 
-			if (opacidad == 0.6) 
-			{
-				elegido.style.opacity = 1;
-			}
-			else 
-			{
+			//if (opacidad == 0.6) 
+			//{
+			//	elegido.style.opacity = 1;
+			//}
+			//else 
+			//{
 				elegido.style.opacity = 0.6;
-			}
+				elegido.style.borderStyle = "inset";
+				//elegido.style.border = 5px solid #000;
+			//}
 
 			
 
 		}
 		else 
 		{
-			elegido.style.opacity = 0.6;
-			if ((elegido.style.backgroundColor != "white")&&(primeraCelda.style.backgroundColor == elegido.style.backgroundColor))
+			//elegido.style.opacity = 0.6;
+			if ((elegido.style.backgroundColor != "white")&&(primeraCelda.style.backgroundColor == elegido.style.backgroundColor)&&(primeraCelda!=elegido))
 			   
 				{
-				alert ("acertaste ");
+				
+				elegido.style.opacity = 0.6;
+				elegido.style.borderStyle = "inset";
+				win.playclip();
+				//alert ("acertaste ");
+				var info = document.getElementById("notas");
+				info.innerText = "Correcto los colores son iguales... sigue asi";
+				
+				
 				
 				// cambio el fondo de las dos celdas
+				
+				primeraCelda.style.opacity = 1;
 				primeraCelda.style.backgroundColor = "white";
+				elegido.style.opacity = 1;
 				elegido.style.backgroundColor = "white";
 				segundaVez=0;
 				contadorParejas++;
 				}
 			else
 				{
-				alert ("Que torpe eres");
+				
+				error.playclip();
+				//alert ("Que torpe eres");
+				var info = document.getElementById("notas");
+				info.innerText = "Fíjate mejor, los colores no son iguales";
 				elegido.style.opacity = 1;
 				primeraCelda.style.opacity = 1;
+				elegido.style.borderStyle = "solid";
+				//elegido.style.border = 1px solid #000;
+				//primeraCelda.style.border = 1px solid #000;
+				//primeraCelda.style.borderWidth = 1px;
+				//elegido.style.borderWidth = 1px;
 				primeraCelda = null;
 				segundaVez=0;
 				}
@@ -117,57 +197,81 @@
 		if (contadorParejas == 10) 
 		{
 			alert("Hemos terminado");
+			reiniciarJuego();
 			
 		}
 		
+	}
+	
+	
+	//Función para que al terminar el juego se reinicie con nuevos colores
+	function reiniciarJuego ()
+	{
+	mezclar.playclip();
+	var info = document.getElementById("notas");
+	info.innerText = "  Para ganar tienes que hacer desaparecer todas las casillas";
+	contadorParejas = 0; // hasta 10 parejas
+	segundaVez = 0; // variable para controlar la segunda casilla que hace click
+	primeraCelda = null; //variable para almacenar la primera celda seleccionada
+	rellenaCajaColores();
+	
+	
 	}
 
 	
 </script>
 
 </head>
-<body>
+<body onload="reiniciarJuego()">
 
 
-
-
-	<div id="contenedor">
-		<div id="contenidos">
-			<div id="num1" class="celda" onclick="seleccionar(this)">1</div>
-			<div id="num2" class="celda" onclick="seleccionar(this)">2</div>
-			<div id="num3" class="celda" onclick="seleccionar(this)">3</div>
-			<div id="num4" class="celda" onclick="seleccionar(this)">4</div>
-			<div id="num5" class="celda" onclick="seleccionar(this)">5</div>
-		</div>
-		<div id="contenidos">
-			<div id="num6" class="celda" onclick="seleccionar(this)">1</div>
-			<div id="num7" class="celda" onclick="seleccionar(this)">2</div>
-			<div id="num8" class="celda" onclick="seleccionar(this)">3</div>
-			<div id="num9" class="celda" onclick="seleccionar(this)">4</div>
-			<div id="num10" class="celda" onclick="seleccionar(this)">5</div>
-		</div>
-		<div id="contenidos">
-			<div id="num11" class="celda" onclick="seleccionar(this)">1</div>
-			<div id="num12" class="celda" onclick="seleccionar(this)">2</div>
-			<div id="num13" class="celda" onclick="seleccionar(this)">3</div>
-			<div id="num14" class="celda" onclick="seleccionar(this)">4</div>
-			<div id="num15" class="celda" onclick="seleccionar(this)">5</div>
-		</div>
-		<div id="contenidos">
-			<div id="num16" class="celda" onclick="seleccionar(this)">1</div>
-			<div id="num17" class="celda" onclick="seleccionar(this)">2</div>
-			<div id="num18" class="celda" onclick="seleccionar(this)">3</div>
-			<div id="num19" class="celda" onclick="seleccionar(this)">4</div>
-			<div id="num20" class="celda" onclick="seleccionar(this)">5</div>
-		</div>
-
-		<div>
-			<input id="botonrellena" type="submit" value="Rellena" class="btn"
-				onclick="rellenaCajaColores();">
-		</div>
+<div id="paginatotal">
+	
+	<div id="contenedorpie">
+		
+		<div class ="pie"><input id="botonrellena" type="submit" value="Barajar Colores" class="btn" 
+				onclick="reiniciarJuego();"></div>
+			
+			<div class = "pie" id="info" ><p id="notas">  Para ganar tienes que hacer desaparecer todas las casillas</p></div>
 	</div>
-
-
+	
+	
+	
+	<div id="contenedor">
+	
+		<div id="contenidos">
+			<div id="num1" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">1</div>
+			<div id="num2" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">2</div>
+			<div id="num3" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">3</div>
+			<div id="num4" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">4</div>
+			<div id="num5" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">5</div>
+		</div>
+		<div id="contenidos">
+			<div id="num6" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">1</div>
+			<div id="num7" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">2</div>
+			<div id="num8" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">3</div>
+			<div id="num9" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">4</div>
+			<div id="num10" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">5</div>
+		</div>
+		<div id="contenidos">
+			<div id="num11" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">1</div>
+			<div id="num12" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">2</div>
+			<div id="num13" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">3</div>
+			<div id="num14" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">4</div>
+			<div id="num15" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">5</div>
+		</div>
+		<div id="contenidos">
+			<div id="num16" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">1</div>
+			<div id="num17" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">2</div>
+			<div id="num18" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">3</div>
+			<div id="num19" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">4</div>
+			<div id="num20" class="celda" onclick="seleccionar(this)" onmouseover="over1.playclip()">5</div>
+			
+		</div>
+		
+	</div>
+	
+</div>
 
 
 </body>
