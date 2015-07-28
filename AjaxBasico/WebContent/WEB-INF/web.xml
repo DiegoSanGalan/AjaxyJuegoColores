@@ -2,13 +2,27 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
   <display-name>AjaxBasico</display-name>
   <welcome-file-list>
-    <welcome-file>JuegoColores.html</welcome-file>
+    <welcome-file>inicio2.html</welcome-file>
     <welcome-file>index.htm</welcome-file>
     <welcome-file>index.jsp</welcome-file>
     <welcome-file>default.html</welcome-file>
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+ <servlet>
+  <servlet-name>Jersey Web Application</servlet-name>
+  <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+  <init-param>
+      <param-name>com.sun.jersey.config.property.packages</param-name>
+      <param-value>recursos</param-value>
+  </init-param>
+  <load-on-startup>1</load-on-startup>
+ </servlet>
+ <!-- INDICAMOS QUE TODO LOS QUE LLEVE REST LO VA A GESTIONAR JERSEY COMO INDICA ARRIBA -->
+<servlet-mapping>
+  <servlet-name>Jersey Web Application</servlet-name>
+  <url-pattern>/recursos/*</url-pattern>
+</servlet-mapping>
   <servlet>
     <description>CargarTrabajadoresTabla</description>
     <display-name>CargarTrabajadoresTabla</display-name>
@@ -59,7 +73,6 @@
     <servlet-name>CargarTrabajadores</servlet-name>
     <url-pattern>/CargarTrabajadores</url-pattern>
   </servlet-mapping>
-  
   <servlet>
     <description>GenerarColores</description>
     <display-name>GenerarColores</display-name>
@@ -70,7 +83,4 @@
     <servlet-name>GenerarColores</servlet-name>
     <url-pattern>/GenerarColores</url-pattern>
   </servlet-mapping>
-
-  
-  
 </web-app>

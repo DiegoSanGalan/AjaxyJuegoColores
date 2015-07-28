@@ -22,6 +22,23 @@ function rellenaCaja()
 	
 }
 
+function borrarDepartamento()
+{
+	xmlHttp = iniciaObjetoRequest();
+	xmlHttp.onreadystatechange = procesarEventos; // llama a procesarEventos cada vez que cambia el estado.
+	xmlHttp.open('DELETE', 'CargaMenuSelect?num=30', true); //indicamos como vamos a enviar los datos, en este caso con el metodo GET al archivo meses.php?num= el valor que le indiquemos en el textbox
+	xmlHttp.send(null);
+}	
+	
+function buscarEmpleado()
+{
+	xmlHttp = iniciaObjetoRequest();
+	xmlHttp.onreadystatechange = procesarEventos; // llama a procesarEventos cada vez que cambia el estado.
+	xmlHttp.open('GET', 'recursos/empleado/info/110', true); //indicamos como vamos a enviar los datos, en este caso con el metodo GET al archivo meses.php?num= el valor que le indiquemos en el textbox
+	xmlHttp.send(null);
+	
+}
+
 
 
 
@@ -32,7 +49,7 @@ function procesarEventos()
   {
       if(xmlHttp.status==200)// y el código de la cabecera http es bueno
           {
-			//alert("He recibido " + xmlHttp.responseText); //.responseText es el body de la respuesta expresado en texto plano
+			alert("He recibido " + xmlHttp.responseText); //.responseText es el body de la respuesta expresado en texto plano
 			//document.getElementById("cajatexto").value = xmlHttp.responseText;
 			
 			// en .response.XML ya directamente lo ha convertido en XML
@@ -275,7 +292,11 @@ function procesarTrabajadoresTabla()
 
 
 </table>
+ <input id = "btnborrar" type="submit" class="btn" Value="Borrar Departamento" onclick = "BorrarDepartamento()"/>
  
+ 
+ Introduce id a buscar: <input type="text" id="id" >
+ <input id = "btnbuscar" type="submit" class="btn" Value="Buscar Empleado por ID" onclick = "buscarEmpleado()"/>
 
 </body>
 </html>
